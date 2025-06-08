@@ -4,6 +4,24 @@ public class FlightSummaryDTO {
     private String flightNumber;
     private String departure;
     private String destination;
+    private String departureTime;
+    private String arrivalTime;
+
+    public String getDepartureTime() {
+        return this.departureTime;
+    }
+
+    public void setDepartureTime(String departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    public String getArrivalTime() {
+        return this.arrivalTime;
+    }
+
+    public void setArrivalTime(String arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
 
     public String getFlightNumber() {
         return this.flightNumber;

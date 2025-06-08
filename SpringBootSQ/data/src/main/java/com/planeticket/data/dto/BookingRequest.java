@@ -4,6 +4,15 @@ public class BookingRequest {
     public String seatNumber;
     public Integer FlightId;
     public Integer UserId;
+    public String phoneNumber;
+
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getSeatNumber() {
         return this.seatNumber;

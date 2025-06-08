@@ -10,33 +10,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.planeticket.data.model.ModelFlight;
-import com.planeticket.data.repository.RepositoryFlight;
+import com.planeticket.data.service.ServiceFlight;
 
 @RestController
 @RequestMapping("/flight")
 public class ControllerFlight {
     @Autowired
-    private RepositoryFlight rpFlight;
+    private ServiceFlight srFlight;
 
     // daftar semua penerbangan
     @GetMapping("/list")
     public Iterable<ModelFlight> getAllFlight() {
-        return rpFlight.findAll();
+        return srFlight.getAllFlight();
     }
 
     // cari penerbangan berdasarkan kota
     @PostMapping("/city")
     public Iterable<ModelFlight> findFlightByCity(@RequestBody ModelFlight flight) {
-        String departure = flight.getDeparture();
-        String destination = flight.getDestination();
-        return rpFlight.findByDepartureAndDestination(departure, destination);
+        return srFlight.findFlightByCity(flight);
     }
 
     // add penerbangan
     @PostMapping("/addflight")
     public boolean addFlightList(@RequestBody List<ModelFlight> flights) {
-        rpFlight.saveAll(flights);
-        return true;
+        return srFlight.addFlightList(flights);
     }
 
 }

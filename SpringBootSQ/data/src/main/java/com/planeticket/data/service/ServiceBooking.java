@@ -1,0 +1,140 @@
+package com.planeticket.data.service;
+
+import java.time.LocalDateTime;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.planeticket.data.dto.BookingRequest;
+import com.planeticket.data.dto.BookingResponseDTO;
+import com.planeticket.data.dto.FlightSummaryDTO;
+import com.planeticket.data.dto.UserSummaryDTO;
+import com.planeticket.data.model.ModelBooking;
+import com.planeticket.data.model.ModelFlight;
+import com.planeticket.data.model.ModelUser;
+import com.planeticket.data.repository.RepositoryBooking;
+import com.planeticket.data.repository.RepositoryFlight;
+import com.planeticket.data.repository.RepositoryUser;
+
+@Service
+public class ServiceBooking {
+    @Autowired
+    private RepositoryBooking rpBooking;
+
+    @Autowired
+    private RepositoryUser rpUser;
+
+    @Autowired
+    private RepositoryFlight rpFlight;
+
+    // create booking
+    public BookingResponseDTO bookingFlight(BookingRequest reqBooking) {
+        ModelBooking booking = new ModelBooking();
+
+        // ambil data penerbangan
+        ModelFlight flightData = rpFlight.findById(reqBooking.getFlightId()).orElse(null);
+
+        if (flightData == null) {
+            throw new RuntimeException("Penerbangan tidak ditemukan");
+        }
+
+        // ambil data user
+        ModelUser userData = rpUser.findById(reqBooking.getUserId()).orElse(null);
+
+        // set relasi flight dan user ke booking
+        booking.setFlight(flightData);
+        booking.setUser(userData);
+
+        // set nilai default
+        booking.setStatus("Booked");
+        booking.setPaymentStatus("Unpaid");
+        booking.setBookingTime(LocalDateTime.now().toString());
+        booking.setSeatNumber(reqBooking.getSeatNumber());
+
+        ModelBooking savedBooking = rpBooking.save(booking);
+
+        // response bagian flight dto
+        BookingResponseDTO response = new BookingResponseDTO();
+        response.setBookingId(savedBooking.getBookingId());
+        response.setSeatNumber(savedBooking.getSeatNumber());
+        response.setPrice(flightData.getPrice());
+        response.setStatus(savedBooking.getStatus());
+        response.setBookingTime(savedBooking.getBookingTime());
+        response.setPaymentStatus(savedBooking.getPaymentStatus());
+
+        // 6. Buat DTO untuk flight
+        FlightSummaryDTO flightDTO = new FlightSummaryDTO();
+        flightDTO.setFlightNumber(flightData.getFlightNumber());
+        flightDTO.setDeparture(flightData.getDeparture());
+        flightDTO.setDestination(flightData.getDestination());
+        flightDTO.setArrivalTime(flightData.getArrivalTime());
+        flightDTO.setDepartureTime(flightData.getDepartureTime());
+        response.setFlight(flightDTO);
+
+        // 7. Buat DTO untuk user
+        UserSummaryDTO userDTO = new UserSummaryDTO();
+        userDTO.setUsername(userData.getUsername());
+        userDTO.setEmail(userData.getEmail());
+        userDTO.setPhoneNumber(userData.getPhoneNumber());
+        response.setUser(userDTO);
+
+        return response;
+    }
+
+    // get booking by id
+    public BookingResponseDTO bookingDetailId(Integer bookingId) {
+        ModelBooking booking = rpBooking.findById(bookingId).orElse(null);
+        if (booking == null)
+            return null;
+
+        BookingResponseDTO dto = new BookingResponseDTO();
+        dto.setBookingId(booking.getBookingId());
+        dto.setSeatNumber(booking.getSeatNumber());
+        dto.setStatus(booking.getStatus());
+        dto.setBookingTime(booking.getBookingTime().toString());
+        dto.setPaymentStatus(booking.getPaymentStatus());
+        dto.setPrice(booking.getFlight().getPrice());
+
+        FlightSummaryDTO flightDTO = new FlightSummaryDTO();
+        flightDTO.setFlightNumber(booking.getFlight().getFlightNumber());
+        flightDTO.setDeparture(booking.getFlight().getDeparture());
+        flightDTO.setDestination(booking.getFlight().getDestination());
+        flightDTO.setDepartureTime(booking.getFlight().getDepartureTime().toString());
+        flightDTO.setArrivalTime(booking.getFlight().getArrivalTime().toString());
+        dto.setFlight(flightDTO);
+
+        // Map user
+        UserSummaryDTO userDTO = new UserSummaryDTO();
+        userDTO.setUsername(booking.getUser().getUsername());
+        userDTO.setEmail(booking.getUser().getEmail());
+        userDTO.setPhoneNumber(booking.getUser().getPhoneNumber());
+        dto.setUser(userDTO);
+
+        return dto;
+        // return rpBooking.findById(bookingId).orElse(null);
+    }
+
+    // update status booking ke cancel
+    public boolean bookingCancel(Integer bookingId) {
+        ModelBooking booking = rpBooking.findById(bookingId).orElse(null);
+        if (booking == null) {
+            return false;
+        }
+
+        booking.setStatus("Cancelled");
+        rpBooking.save(booking);
+        return true;
+
+    }
+
+    // delete booking
+    public boolean deleteBookingHistory(Integer bookingId) {
+        if (rpBooking.existsById(bookingId)) {
+            rpBooking.deleteById(bookingId);
+            return true;
+        }
+
+        return false;
+
+    }
+}
