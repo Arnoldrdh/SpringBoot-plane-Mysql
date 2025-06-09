@@ -63,7 +63,7 @@ public class ServiceBooking {
         response.setBookingTime(savedBooking.getBookingTime());
         response.setPaymentStatus(savedBooking.getPaymentStatus());
 
-        // 6. Buat DTO untuk flight
+        // Buat DTO untuk flight
         FlightSummaryDTO flightDTO = new FlightSummaryDTO();
         flightDTO.setFlightNumber(flightData.getFlightNumber());
         flightDTO.setDeparture(flightData.getDeparture());
@@ -72,7 +72,7 @@ public class ServiceBooking {
         flightDTO.setDepartureTime(flightData.getDepartureTime());
         response.setFlight(flightDTO);
 
-        // 7. Buat DTO untuk user
+        // Buat DTO untuk user
         UserSummaryDTO userDTO = new UserSummaryDTO();
         userDTO.setUsername(userData.getUsername());
         userDTO.setEmail(userData.getEmail());
@@ -112,7 +112,6 @@ public class ServiceBooking {
         dto.setUser(userDTO);
 
         return dto;
-        // return rpBooking.findById(bookingId).orElse(null);
     }
 
     // update status booking ke cancel

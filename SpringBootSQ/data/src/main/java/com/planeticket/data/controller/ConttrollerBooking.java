@@ -42,13 +42,6 @@ public class ConttrollerBooking {
     // endpoint update jadi cancel status tiket
     @PutMapping("/cancel/{bookingId}")
     public boolean bookingCancel(@PathVariable Integer bookingId) {
-        // ModelBooking booking = rpBooking.findById(bookingId).orElse(null);
-        // if (booking == null) {
-        // return false;
-        // }
-
-        // booking.setStatus("Cancelled");
-        // rpBooking.save(booking);
         return srBooking.bookingCancel(bookingId);
 
     }
