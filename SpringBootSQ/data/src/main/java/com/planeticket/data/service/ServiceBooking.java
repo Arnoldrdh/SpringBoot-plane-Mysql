@@ -1,6 +1,7 @@
 package com.planeticket.data.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -127,7 +128,12 @@ public class ServiceBooking {
 
     }
 
-    // delete booking
+    // history pemesanan
+    public List<ModelBooking> historyBooking(Integer userId) {
+        return rpBooking.findByUserUserId(userId);
+    }
+
+    // delete booking(hapus payment)
     public boolean deleteBookingHistory(Integer bookingId) {
         if (rpBooking.existsById(bookingId)) {
             rpBooking.deleteById(bookingId);
