@@ -1,6 +1,7 @@
 package com.planeticket.data.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,6 +122,13 @@ public class ServiceBooking {
             return false;
         }
 
+        // Kembalikan kursi ke ModelFlight
+        ModelFlight flight = booking.getFlight();
+        if (flight != null) {
+            flight.setAvailableSeats(flight.getAvailableSeats() + 1);
+            rpFlight.save(flight);
+        }
+
         booking.setStatus("Cancelled");
         rpBooking.save(booking);
         return true;
@@ -128,8 +136,46 @@ public class ServiceBooking {
     }
 
     // history pemesanan
-    public List<ModelBooking> historyBooking(Integer userId) {
-        return rpBooking.findByUserUserId(userId);
+    public List<BookingResponseDTO> historyBooking(Integer userId) {
+        List<ModelBooking> bookings = rpBooking.findByUserUserId(userId);
+        List<BookingResponseDTO> responseList = new ArrayList<>();
+
+        for (ModelBooking booking : bookings) {
+            BookingResponseDTO dto = new BookingResponseDTO();
+            dto.setBookingId(booking.getBookingId());
+            dto.setSeatNumber(booking.getSeatNumber());
+            dto.setStatus(booking.getStatus());
+            dto.setBookingTime(booking.getBookingTime());
+            dto.setPaymentStatus(booking.getPaymentStatus());
+
+            // Flight
+            ModelFlight flight = booking.getFlight();
+            if (flight != null) {
+                FlightSummaryDTO flightDTO = new FlightSummaryDTO();
+                flightDTO.setFlightNumber(flight.getFlightNumber());
+                flightDTO.setDeparture(flight.getDeparture());
+                flightDTO.setDestination(flight.getDestination());
+                flightDTO.setDepartureTime(flight.getDepartureTime());
+                flightDTO.setArrivalTime(flight.getArrivalTime());
+                dto.setFlight(flightDTO);
+
+                dto.setPrice(flight.getPrice()); // Set harga dari flight
+            }
+
+            // User
+            ModelUser user = booking.getUser();
+            if (user != null) {
+                UserSummaryDTO userDTO = new UserSummaryDTO();
+                userDTO.setUsername(user.getUsername());
+                userDTO.setEmail(user.getEmail());
+                userDTO.setPhoneNumber(user.getPhoneNumber());
+                dto.setUser(userDTO);
+            }
+
+            responseList.add(dto);
+        }
+
+        return responseList;
     }
 
     // delete booking(hapus payment)

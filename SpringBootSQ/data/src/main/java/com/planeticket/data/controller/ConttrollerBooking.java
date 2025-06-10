@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.planeticket.data.dto.BookingRequest;
 import com.planeticket.data.dto.BookingResponseDTO;
-import com.planeticket.data.model.ModelBooking;
-import com.planeticket.data.repository.RepositoryBooking;
 import com.planeticket.data.service.ServiceBooking;
 
 @RestController
@@ -23,9 +21,6 @@ import com.planeticket.data.service.ServiceBooking;
 public class ConttrollerBooking {
     @Autowired
     private ServiceBooking srBooking;
-
-    @Autowired
-    private RepositoryBooking rpBooking;
 
     // create booking
     @PostMapping("/add")
@@ -48,8 +43,8 @@ public class ConttrollerBooking {
 
     // endpoint history pembelian tiket
     @GetMapping("/history/{userId}")
-    public List<ModelBooking> historyBooking(@PathVariable Integer userId) {
-        return rpBooking.findByUserUserId(userId);
+    public List<BookingResponseDTO> historyBooking(@PathVariable Integer userId) {
+        return srBooking.historyBooking(userId);
     }
 
     // endpoint delete history tiket (payment dulu hapus baru ini)
